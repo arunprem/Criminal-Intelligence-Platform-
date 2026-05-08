@@ -1,0 +1,64 @@
+{
+  "settings": {
+    "number_of_shards": 5,
+    "number_of_replicas": 1,
+    "refresh_interval": "10s"
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "relationship_id": {
+        "type": "keyword",
+        "doc_values": true
+      },
+      "source_master_id": {
+        "type": "keyword"
+      },
+      "target_master_id": {
+        "type": "keyword"
+      },
+      "relationship_type": {
+        "type": "keyword"
+      },
+      "strength": {
+        "type": "float"
+      },
+      "fir_numbers": {
+        "type": "keyword"
+      },
+      "districts": {
+        "type": "keyword"
+      },
+      "police_stations": {
+        "type": "keyword"
+      },
+      "evidence_sources": {
+        "type": "nested",
+        "properties": {
+          "index": { "type": "keyword" },
+          "doc_id": { "type": "keyword" },
+          "field": { "type": "keyword" },
+          "value": { "type": "keyword" }
+        }
+      },
+      "occurrence_count": {
+        "type": "integer"
+      },
+      "first_seen": {
+        "type": "date"
+      },
+      "last_seen": {
+        "type": "date"
+      },
+      "is_active": {
+        "type": "boolean"
+      },
+      "created_at": {
+        "type": "date"
+      },
+      "updated_at": {
+        "type": "date"
+      }
+    }
+  }
+}

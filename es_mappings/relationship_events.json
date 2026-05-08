@@ -1,0 +1,56 @@
+{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 1,
+    "refresh_interval": "30s"
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "_source": { "enabled": true },
+    "properties": {
+      "event_id": {
+        "type": "keyword"
+      },
+      "relationship_id": {
+        "type": "keyword"
+      },
+      "source_master_id": {
+        "type": "keyword"
+      },
+      "target_master_id": {
+        "type": "keyword"
+      },
+      "relationship_type": {
+        "type": "keyword"
+      },
+      "event_type": {
+        "type": "keyword"
+      },
+      "fir_no": {
+        "type": "keyword"
+      },
+      "source_doc_ref": {
+        "type": "object",
+        "properties": {
+          "index": { "type": "keyword" },
+          "doc_id": { "type": "keyword" }
+        }
+      },
+      "evidence_field": {
+        "type": "keyword"
+      },
+      "evidence_value": {
+        "type": "keyword"
+      },
+      "strength_delta": {
+        "type": "float"
+      },
+      "timestamp": {
+        "type": "date"
+      },
+      "processed_by": {
+        "type": "keyword"
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+FROM python:3.11-slim
+
+LABEL description="Criminal Intelligence Network Analysis - Worker Service"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY pyproject.toml .
+COPY src/ ./src/
+COPY es_mappings/ ./es_mappings/
+RUN pip install --no-cache-dir -e ".[dev]" || pip install --no-cache-dir -e .
+
+RUN useradd -m -u 1001 cinuser && chown -R cinuser:cinuser /app
+USER cinuser
+
+# Default command overridden by docker-compose / k8s
+CMD ["python", "-m", "src.workers.normalization_worker"]

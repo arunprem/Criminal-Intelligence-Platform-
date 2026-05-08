@@ -1,0 +1,135 @@
+---
+# ── Normalization Worker Deployment ──────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cin-normalization-worker
+  namespace: cin-platform
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: cin-normalization-worker
+  template:
+    metadata:
+      labels:
+        app: cin-normalization-worker
+    spec:
+      containers:
+        - name: normalization-worker
+          image: cin-platform/worker:latest
+          command: ["python", "-m", "src.workers.normalization_worker"]
+          envFrom:
+            - configMapRef:
+                name: cin-config
+            - secretRef:
+                name: cin-secrets
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "2Gi"
+            limits:
+              cpu: "2000m"
+              memory: "4Gi"
+
+---
+# ── Resolution Worker Deployment ──────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cin-resolution-worker
+  namespace: cin-platform
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: cin-resolution-worker
+  template:
+    metadata:
+      labels:
+        app: cin-resolution-worker
+    spec:
+      containers:
+        - name: resolution-worker
+          image: cin-platform/worker:latest
+          command: ["python", "-m", "src.workers.resolution_worker"]
+          envFrom:
+            - configMapRef:
+                name: cin-config
+            - secretRef:
+                name: cin-secrets
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "2Gi"
+            limits:
+              cpu: "2000m"
+              memory: "4Gi"
+
+---
+# ── Relationship Worker Deployment ────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cin-relationship-worker
+  namespace: cin-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cin-relationship-worker
+  template:
+    metadata:
+      labels:
+        app: cin-relationship-worker
+    spec:
+      containers:
+        - name: relationship-worker
+          image: cin-platform/worker:latest
+          command: ["python", "-m", "src.workers.relationship_worker"]
+          envFrom:
+            - configMapRef:
+                name: cin-config
+            - secretRef:
+                name: cin-secrets
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "1Gi"
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"
+
+---
+# ── Historical Batch Job ───────────────────────────────────────────────────────
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cin-historical-batch
+  namespace: cin-platform
+spec:
+  parallelism: 4
+  completions: 4
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: batch-processor
+          image: cin-platform/worker:latest
+          command:
+            - python
+            - scripts/run_historical_batch.py
+            - "--parallel"
+          envFrom:
+            - configMapRef:
+                name: cin-config
+            - secretRef:
+                name: cin-secrets
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "4Gi"
+            limits:
+              cpu: "2000m"
+              memory: "8Gi"

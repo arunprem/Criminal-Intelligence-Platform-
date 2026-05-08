@@ -1,0 +1,226 @@
+{
+  "settings": {
+    "number_of_shards": 10,
+    "number_of_replicas": 1,
+    "refresh_interval": "30s",
+    "max_ngram_diff": 8,
+    "analysis": {
+      "char_filter": {
+        "malayalam_transliterate": {
+          "type": "pattern_replace",
+          "pattern": "[\\u0D00-\\u0D7F]+",
+          "replacement": ""
+        }
+      },
+      "tokenizer": {
+        "ngram_tokenizer": {
+          "type": "ngram",
+          "min_gram": 2,
+          "max_gram": 3,
+          "token_chars": ["letter", "digit"]
+        },
+        "edge_ngram_tokenizer": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 10,
+          "token_chars": ["letter"]
+        }
+      },
+      "filter": {
+        "phonetic_filter": {
+          "type": "phonetic",
+          "encoder": "double_metaphone",
+          "replace": false
+        },
+        "ascii_folding": {
+          "type": "asciifolding",
+          "preserve_original": true
+        },
+        "name_synonym_filter": {
+          "type": "synonym",
+          "synonyms": [
+            "muhammed,mohammed,mohammad,md",
+            "krishna,krish,krishnan",
+            "suresh,sureshan",
+            "rajan,rajagopal,rajappan",
+            "jose,joseph,joshy",
+            "thomas,thampy,thampan"
+          ]
+        }
+      },
+      "analyzer": {
+        "standard_name_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase", "ascii_folding", "trim"]
+        },
+        "phonetic_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase", "ascii_folding", "phonetic_filter"]
+        },
+        "ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "ngram_tokenizer",
+          "filter": ["lowercase", "ascii_folding"]
+        },
+        "edge_ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "edge_ngram_tokenizer",
+          "filter": ["lowercase"]
+        },
+        "keyword_lowercase_analyzer": {
+          "type": "custom",
+          "tokenizer": "keyword",
+          "filter": ["lowercase", "trim"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "normalized_id": {
+        "type": "keyword",
+        "doc_values": true
+      },
+      "source_index": {
+        "type": "keyword"
+      },
+      "source_id": {
+        "type": "keyword"
+      },
+      "person_role": {
+        "type": "keyword"
+      },
+      "master_person_id": {
+        "type": "keyword",
+        "doc_values": true
+      },
+
+      "normalized_name": {
+        "type": "text",
+        "analyzer": "standard_name_analyzer",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "phonetic": { "type": "text", "analyzer": "phonetic_analyzer" },
+          "ngram": { "type": "text", "analyzer": "ngram_analyzer" }
+        }
+      },
+      "phonetic_name": {
+        "type": "keyword"
+      },
+      "transliterated_name": {
+        "type": "text",
+        "analyzer": "standard_name_analyzer",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 }
+        }
+      },
+      "name_prefix": {
+        "type": "keyword"
+      },
+
+      "normalized_phones": {
+        "type": "keyword"
+      },
+      "primary_phone": {
+        "type": "keyword"
+      },
+      "phone_prefix": {
+        "type": "keyword"
+      },
+
+      "normalized_address": {
+        "type": "text",
+        "analyzer": "standard_name_analyzer",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 512 }
+        }
+      },
+      "address_locality": {
+        "type": "keyword"
+      },
+      "address_district": {
+        "type": "keyword"
+      },
+      "address_state": {
+        "type": "keyword"
+      },
+      "address_pincode": {
+        "type": "keyword"
+      },
+
+      "normalized_relative_names": {
+        "type": "text",
+        "analyzer": "standard_name_analyzer",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "phonetic": { "type": "text", "analyzer": "phonetic_analyzer" }
+        }
+      },
+      "relative_name_phonetics": {
+        "type": "keyword"
+      },
+
+      "fir_numbers": {
+        "type": "keyword"
+      },
+      "normalized_fir_numbers": {
+        "type": "keyword"
+      },
+      "police_station": {
+        "type": "keyword"
+      },
+      "district": {
+        "type": "keyword"
+      },
+
+      "dob": {
+        "type": "date",
+        "format": "yyyy-MM-dd||yyyy/MM/dd||dd-MM-yyyy||dd/MM/yyyy"
+      },
+      "age": {
+        "type": "integer"
+      },
+      "age_group": {
+        "type": "keyword"
+      },
+      "gender": {
+        "type": "keyword"
+      },
+
+      "blocking_keys": {
+        "type": "keyword"
+      },
+
+      "name_vector": {
+        "type": "dense_vector",
+        "dims": 384,
+        "index": true,
+        "similarity": "cosine"
+      },
+
+      "raw_doc_ref": {
+        "type": "object",
+        "properties": {
+          "index": { "type": "keyword" },
+          "id": { "type": "keyword" }
+        }
+      },
+
+      "processing_status": {
+        "type": "keyword"
+      },
+      "normalization_version": {
+        "type": "keyword"
+      },
+      "created_at": {
+        "type": "date"
+      },
+      "updated_at": {
+        "type": "date"
+      }
+    }
+  }
+}

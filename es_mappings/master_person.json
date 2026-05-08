@@ -1,0 +1,200 @@
+{
+  "settings": {
+    "number_of_shards": 5,
+    "number_of_replicas": 2,
+    "refresh_interval": "10s",
+    "max_ngram_diff": 1,
+    "analysis": {
+      "tokenizer": {
+        "ngram_tokenizer": {
+          "type": "ngram",
+          "min_gram": 2,
+          "max_gram": 3,
+          "token_chars": ["letter", "digit"]
+        }
+      },
+      "filter": {
+        "phonetic_filter": {
+          "type": "phonetic",
+          "encoder": "double_metaphone",
+          "replace": false
+        },
+        "ascii_folding": {
+          "type": "asciifolding",
+          "preserve_original": true
+        }
+      },
+      "analyzer": {
+        "standard_name_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase", "ascii_folding", "trim"]
+        },
+        "phonetic_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase", "ascii_folding", "phonetic_filter"]
+        },
+        "ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "ngram_tokenizer",
+          "filter": ["lowercase", "ascii_folding"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "master_person_id": {
+        "type": "keyword",
+        "doc_values": true
+      },
+      "status": {
+        "type": "keyword"
+      },
+
+      "primary_name": {
+        "type": "text",
+        "analyzer": "standard_name_analyzer",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "phonetic": { "type": "text", "analyzer": "phonetic_analyzer" },
+          "ngram": { "type": "text", "analyzer": "ngram_analyzer" }
+        }
+      },
+      "name_variants": {
+        "type": "keyword"
+      },
+      "aliases": {
+        "type": "text",
+        "analyzer": "standard_name_analyzer",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 }
+        }
+      },
+      "phonetic_primary_name": {
+        "type": "keyword"
+      },
+
+      "canonical_phone": {
+        "type": "keyword"
+      },
+      "all_phones": {
+        "type": "keyword"
+      },
+
+      "canonical_address": {
+        "type": "text",
+        "analyzer": "standard_name_analyzer",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 512 }
+        }
+      },
+      "all_addresses": {
+        "type": "keyword"
+      },
+      "districts": {
+        "type": "keyword"
+      },
+      "police_stations": {
+        "type": "keyword"
+      },
+
+      "dob": {
+        "type": "date",
+        "format": "yyyy-MM-dd||yyyy/MM/dd||dd-MM-yyyy||dd/MM/yyyy"
+      },
+      "age": {
+        "type": "integer"
+      },
+      "age_group": {
+        "type": "keyword"
+      },
+      "gender": {
+        "type": "keyword"
+      },
+
+      "relative_names": {
+        "type": "text",
+        "analyzer": "standard_name_analyzer",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 }
+        }
+      },
+
+      "connected_firs": {
+        "type": "keyword"
+      },
+      "person_roles": {
+        "type": "nested",
+        "properties": {
+          "role": { "type": "keyword" },
+          "fir_no": { "type": "keyword" },
+          "district": { "type": "keyword" },
+          "police_station": { "type": "keyword" },
+          "date": { "type": "date" }
+        }
+      },
+
+      "source_documents": {
+        "type": "nested",
+        "properties": {
+          "index": { "type": "keyword" },
+          "doc_id": { "type": "keyword" },
+          "normalized_id": { "type": "keyword" }
+        }
+      },
+
+      "risk_score": {
+        "type": "float"
+      },
+      "risk_factors": {
+        "type": "nested",
+        "properties": {
+          "factor": { "type": "keyword" },
+          "weight": { "type": "float" },
+          "detail": { "type": "keyword" }
+        }
+      },
+
+      "gang_ids": {
+        "type": "keyword"
+      },
+      "centrality_score": {
+        "type": "float"
+      },
+      "network_size": {
+        "type": "integer"
+      },
+
+      "merge_history": {
+        "type": "nested",
+        "properties": {
+          "merged_master_id": { "type": "keyword" },
+          "merged_at": { "type": "date" },
+          "merged_by": { "type": "keyword" },
+          "confidence_score": { "type": "float" },
+          "reason": { "type": "keyword" }
+        }
+      },
+
+      "face_embedding": {
+        "type": "dense_vector",
+        "dims": 512,
+        "index": true,
+        "similarity": "cosine"
+      },
+
+      "created_at": {
+        "type": "date"
+      },
+      "last_updated": {
+        "type": "date"
+      },
+      "last_activity_date": {
+        "type": "date"
+      }
+    }
+  }
+}

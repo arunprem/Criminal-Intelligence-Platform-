@@ -1,0 +1,30 @@
+---
+# ── ConfigMap ─────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cin-config
+  namespace: cin-platform
+data:
+  ES_HOSTS: "http://elasticsearch-master:9200"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  REDIS_URL: "redis://redis:6379/0"
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  BATCH_SIZE: "500"
+  ER_AUTO_MERGE_THRESHOLD: "0.75"
+  ER_REVIEW_THRESHOLD: "0.55"
+  EMBEDDING_ENABLED: "false"
+
+---
+# ── Secret (populate from vault in production) ────────────────────────────────
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cin-secrets
+  namespace: cin-platform
+type: Opaque
+stringData:
+  ES_USERNAME: "elastic"
+  ES_PASSWORD: "CHANGE_ME_IN_PRODUCTION"
+  API_SECRET_KEY: "CHANGE_ME_IN_PRODUCTION"
